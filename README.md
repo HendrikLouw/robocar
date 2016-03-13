@@ -16,6 +16,7 @@ brew install golang
 ### Install gobot (http://gobot.io/)
 ```
 go get -d -u github.com/hybridgroup/gobot/
+go get github.com/bmizerany/pat
 ```
 
 
