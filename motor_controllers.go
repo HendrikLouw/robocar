@@ -1,8 +1,6 @@
 package main
 
 import (
-	"time"
-
 	"github.com/hybridgroup/gobot"
 	"github.com/hybridgroup/gobot/api"
 	"github.com/hybridgroup/gobot/platforms/gpio"
@@ -17,45 +15,60 @@ func main() {
 	gbotApi.Debug()
 	gbotApi.Start()
 
-	pin := gpio.NewDirectPinDriver(raspberryAdaptor, "pin", "13")
-	work := func() {
-		level := byte(1)
+	motor1A := gpio.NewDirectPinDriver(raspberryAdaptor, "pin", "16")
+	motor1B := gpio.NewDirectPinDriver(raspberryAdaptor, "pin", "18")
+	motor1E := gpio.NewDirectPinDriver(raspberryAdaptor, "pin", "22")
 
-		gobot.Every(1*time.Second, func() {
-			pin.DigitalWrite(level)
-			if level == 1 {
-				level = 0
-			} else {
-				level = 1
-			}
-		})
-	}
+	motor2A := gpio.NewDirectPinDriver(raspberryAdaptor, "pin", "23")
+	motor2B := gpio.NewDirectPinDriver(raspberryAdaptor, "pin", "21")
+	motor2E := gpio.NewDirectPinDriver(raspberryAdaptor, "pin", "19")
+
+	HIGH := byte(1)
+	LOW := byte(0)
+
 	robot := gobot.NewRobot("dc_motor_bot",
 		[]gobot.Connection{raspberryAdaptor},
-		[]gobot.Device{pin},
-		work,
-	)
+		[]gobot.Device{motor1A, motor1B, motor1E, motor2A, motor2B, motor2E})
 
 	addedBot := gbot.AddRobot(robot)
 
 	addedBot.AddCommand("forward",
 		func(params map[string]interface{}) interface{} {
-			return "Must implement forward!"
+			motor1A.DigitalWrite(HIGH)
+			motor1B.DigitalWrite(LOW)
+			motor1E.DigitalWrite(HIGH)
+			return "Going forward!"
 		})
 
 	addedBot.AddCommand("backward",
 		func(params map[string]interface{}) interface{} {
-			return "Must implement backward!"
+			motor1A.DigitalWrite(LOW)
+			motor1B.DigitalWrite(HIGH)
+			motor1E.DigitalWrite(HIGH)
+			return "Going backward!"
 		})
 
 	addedBot.AddCommand("left",
 		func(params map[string]interface{}) interface{} {
-			return "Must implement left!"
+			motor2A.DigitalWrite(HIGH)
+			motor2B.DigitalWrite(LOW)
+			motor2E.DigitalWrite(HIGH)
+			return "Going left!"
 		})
 
 	addedBot.AddCommand("right",
 		func(params map[string]interface{}) interface{} {
-			return "Must implement right!"
+			motor2A.DigitalWrite(HIGH)
+			motor2B.DigitalWrite(HIGH)
+			motor2E.DigitalWrite(HIGH)
+			return "Going right!"
+		})
+
+	addedBot.AddCommand("stop",
+		func(params map[string]interface{}) interface{} {
+			motor1E.DigitalWrite(LOW)
+			motor2E.DigitalWrite(LOW)
+			return "Stop!"
 		})
 
 	gbot.Start()
