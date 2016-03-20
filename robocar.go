@@ -19,9 +19,9 @@ func main() {
 	motor1B := gpio.NewDirectPinDriver(raspberryAdaptor, "pin", "18")
 	motor1E := gpio.NewDirectPinDriver(raspberryAdaptor, "pin", "22")
 
-	motor2A := gpio.NewDirectPinDriver(raspberryAdaptor, "pin", "23")
+	motor2A := gpio.NewDirectPinDriver(raspberryAdaptor, "pin", "19")
 	motor2B := gpio.NewDirectPinDriver(raspberryAdaptor, "pin", "21")
-	motor2E := gpio.NewDirectPinDriver(raspberryAdaptor, "pin", "19")
+	motor2E := gpio.NewDirectPinDriver(raspberryAdaptor, "pin", "23")
 
 	HIGH := byte(1)
 	LOW := byte(0)
@@ -32,36 +32,48 @@ func main() {
 
 	addedBot := gbot.AddRobot(robot)
 
-	addedBot.AddCommand("forward",
+	addedBot.AddCommand("right",
 		func(params map[string]interface{}) interface{} {
 			motor1A.DigitalWrite(HIGH)
 			motor1B.DigitalWrite(LOW)
 			motor1E.DigitalWrite(HIGH)
+			return "Going right!"
+		})
+
+	addedBot.AddCommand("left",
+		func(params map[string]interface{}) interface{} {
+			motor1A.DigitalWrite(LOW)
+			motor1B.DigitalWrite(HIGH)
+			motor1E.DigitalWrite(HIGH)
+			return "Going left!"
+		})
+
+	addedBot.AddCommand("forward",
+		func(params map[string]interface{}) interface{} {
+			motor2A.DigitalWrite(HIGH)
+			motor2B.DigitalWrite(LOW)
+			motor2E.DigitalWrite(HIGH)
 			return "Going forward!"
 		})
 
 	addedBot.AddCommand("backward",
 		func(params map[string]interface{}) interface{} {
-			motor1A.DigitalWrite(LOW)
-			motor1B.DigitalWrite(HIGH)
-			motor1E.DigitalWrite(HIGH)
+			motor2A.DigitalWrite(LOW)
+			motor2B.DigitalWrite(HIGH)
+			motor2E.DigitalWrite(HIGH)
 			return "Going backward!"
 		})
 
-	addedBot.AddCommand("left",
+	addedBot.AddCommand("stop_acceleration",
 		func(params map[string]interface{}) interface{} {
-			motor2A.DigitalWrite(HIGH)
-			motor2B.DigitalWrite(LOW)
-			motor2E.DigitalWrite(HIGH)
-			return "Going left!"
+			motor2E.DigitalWrite(LOW)
+			return "Stop acceleration! "
 		})
 
-	addedBot.AddCommand("right",
+	addedBot.AddCommand("stop_turning",
 		func(params map[string]interface{}) interface{} {
-			motor2A.DigitalWrite(HIGH)
-			motor2B.DigitalWrite(HIGH)
-			motor2E.DigitalWrite(HIGH)
-			return "Going right!"
+			motor1E.DigitalWrite(LOW)
+			return "Stop turning! "
 		})
 
 	addedBot.AddCommand("stop",
