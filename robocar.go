@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/hybridgroup/gobot"
 	"github.com/hybridgroup/gobot/api"
 	"github.com/hybridgroup/gobot/platforms/gpio"
@@ -48,20 +49,20 @@ func main() {
 	roboCar.AddCommand("backward",
 		func(params map[string]interface{}) interface{} {
 			ch2DIR.DigitalWrite(LOW)
-			ch2PWM.DigitalWrite(HIGH)
-		return "Going backward!"
+			err := ch2PWM.PwmWrite(byte(params["speed"].(float64)))
+		return err
 		})
 
 	roboCar.AddCommand("forward",
 		func(params map[string]interface{}) interface{} {
 			ch2DIR.DigitalWrite(HIGH)
-			ch2PWM.DigitalWrite(HIGH)
-			return "Going forward!"
+			err := ch2PWM.PwmWrite(byte(params["speed"].(float64)))
+			return err
 		})
 
 	roboCar.AddCommand("stop_acceleration",
 		func(params map[string]interface{}) interface{} {
-			ch2PWM.DigitalWrite(LOW)
+			ch2PWM.PwmWrite(LOW)
 			return "Stop acceleration! "
 		})
 
@@ -74,7 +75,7 @@ func main() {
 	roboCar.AddCommand("stop",
 		func(params map[string]interface{}) interface{} {
 			ch1PWM.DigitalWrite(LOW)
-			ch2PWM.DigitalWrite(LOW)
+			ch2PWM.PwmWrite(LOW)
 			return "Stop!"
 		})
 
