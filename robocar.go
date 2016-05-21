@@ -15,71 +15,66 @@ func main() {
 	gbotApi.Debug()
 	gbotApi.Start()
 
-	motor1A := gpio.NewDirectPinDriver(raspberryAdaptor, "pin", "16")
-	motor1B := gpio.NewDirectPinDriver(raspberryAdaptor, "pin", "18")
-	motor1E := gpio.NewDirectPinDriver(raspberryAdaptor, "pin", "22")
+	ch1DIR := gpio.NewDirectPinDriver(raspberryAdaptor, "pin", "24")
+	ch1PWM := gpio.NewDirectPinDriver(raspberryAdaptor, "pin", "22")
+	ch1GND := gpio.NewDirectPinDriver(raspberryAdaptor, "pin", "20")
 
-	motor2A := gpio.NewDirectPinDriver(raspberryAdaptor, "pin", "19")
-	motor2B := gpio.NewDirectPinDriver(raspberryAdaptor, "pin", "21")
-	motor2E := gpio.NewDirectPinDriver(raspberryAdaptor, "pin", "23")
+	ch2DIR := gpio.NewDirectPinDriver(raspberryAdaptor, "pin", "18")
+	ch2PWM := gpio.NewDirectPinDriver(raspberryAdaptor, "pin", "16")
+	ch2GND := gpio.NewDirectPinDriver(raspberryAdaptor, "pin", "14")
 
 	HIGH := byte(1)
 	LOW := byte(0)
 
-	robot := gobot.NewRobot("dc_motor_bot",
+	robot := gobot.NewRobot("robocar",
 		[]gobot.Connection{raspberryAdaptor},
-		[]gobot.Device{motor1A, motor1B, motor1E, motor2A, motor2B, motor2E})
+		[]gobot.Device{ch1DIR, ch1PWM, ch1GND, ch2DIR, ch2PWM, ch2GND})
 
-	addedBot := gbot.AddRobot(robot)
+	roboCar := gbot.AddRobot(robot)
 
-	addedBot.AddCommand("right",
+	roboCar.AddCommand("left",
 		func(params map[string]interface{}) interface{} {
-			motor1A.DigitalWrite(HIGH)
-			motor1B.DigitalWrite(LOW)
-			motor1E.DigitalWrite(HIGH)
-			return "Going right!"
+			ch1DIR.DigitalWrite(HIGH)
+			ch1PWM.DigitalWrite(HIGH)
+			return "Turning left"
+		})
+		roboCar.AddCommand("right",
+			func(params map[string]interface{}) interface{} {
+				ch1DIR.DigitalWrite(LOW)
+				ch1PWM.DigitalWrite(HIGH)
+				return "Turning right"
+			})
+
+	roboCar.AddCommand("backward",
+		func(params map[string]interface{}) interface{} {
+			ch2DIR.DigitalWrite(LOW)
+			ch2PWM.DigitalWrite(HIGH)
+		return "Going backward!"
 		})
 
-	addedBot.AddCommand("left",
+	roboCar.AddCommand("forward",
 		func(params map[string]interface{}) interface{} {
-			motor1A.DigitalWrite(LOW)
-			motor1B.DigitalWrite(HIGH)
-			motor1E.DigitalWrite(HIGH)
-			return "Going left!"
-		})
-
-	addedBot.AddCommand("forward",
-		func(params map[string]interface{}) interface{} {
-			motor2A.DigitalWrite(HIGH)
-			motor2B.DigitalWrite(LOW)
-			motor2E.DigitalWrite(HIGH)
+			ch2DIR.DigitalWrite(HIGH)
+			ch2PWM.DigitalWrite(HIGH)
 			return "Going forward!"
 		})
 
-	addedBot.AddCommand("backward",
+	roboCar.AddCommand("stop_acceleration",
 		func(params map[string]interface{}) interface{} {
-			motor2A.DigitalWrite(LOW)
-			motor2B.DigitalWrite(HIGH)
-			motor2E.DigitalWrite(HIGH)
-			return "Going backward!"
-		})
-
-	addedBot.AddCommand("stop_acceleration",
-		func(params map[string]interface{}) interface{} {
-			motor2E.DigitalWrite(LOW)
+			ch2PWM.DigitalWrite(LOW)
 			return "Stop acceleration! "
 		})
 
-	addedBot.AddCommand("stop_turning",
+	roboCar.AddCommand("stop_turning",
 		func(params map[string]interface{}) interface{} {
-			motor1E.DigitalWrite(LOW)
+			ch1PWM.DigitalWrite(LOW)
 			return "Stop turning! "
 		})
 
-	addedBot.AddCommand("stop",
+	roboCar.AddCommand("stop",
 		func(params map[string]interface{}) interface{} {
-			motor1E.DigitalWrite(LOW)
-			motor2E.DigitalWrite(LOW)
+			ch1PWM.DigitalWrite(LOW)
+			ch2PWM.DigitalWrite(LOW)
 			return "Stop!"
 		})
 
